@@ -284,11 +284,8 @@ int main(int argc, char* argv[]) {
 
 	signal(SIGINT, signal_handler);
 
-	int c;
-	bool esc = false;
-
 	while (!done) {
-		while(XPending(dpy)) {
+		while (XPending(dpy)) {
 			XNextEvent(dpy, &xev);
 			if (!handle_event(xev)) {
 				done = true;

@@ -13,7 +13,8 @@ extern const mat4 indicator_proj;
 
 _BEGIN_ALIGN16
 struct simplex {
-	vec4 points[4];
+	_ALIGNED16(vec4 points[4]);
+	_DEFINE_ALIGNED_MALLOC_FREE_MEMBERS;
 } _END_ALIGN16;
 
 #endif

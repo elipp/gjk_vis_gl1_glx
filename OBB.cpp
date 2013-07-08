@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <GL/gl.h>
 #include <iostream>
+#include <algorithm>
 
 #include "gjkvis.h"
 
@@ -551,7 +552,7 @@ static void draw_indicators(const std::pair<int, simplex > &sp) {
 	glLoadIdentity();
 	glBegin(GL_POINTS);
 	for (int i = 0; i < sp.first; ++i) {
-		glColor3f(colors[i].c[0], colors[i].c[1], colors[i].c[2]);
+		glColor3f(colors[std::min(i,4)].c[0], colors[std::min(i,4)].c[1], colors[std::min(i,4)].c[2]);
 		glVertex3f(WINDOW_WIDTH - 50 + 10*i, WINDOW_HEIGHT-10, 0.0);
 	}
 	glEnd();
@@ -657,7 +658,8 @@ void draw_simplex(const std::pair<int, simplex> &sp) {
 }
 
 
-void add_current_simplex_to_history() { simplex s;
+void add_current_simplex_to_history() { 
+	simplex s;
 	memcpy(&s.points[0], &simplex_points[0], 4*sizeof(vec4));
 	simplex_history.push_back(std::make_pair(simplex_current_num_points, s));
 }
@@ -669,11 +671,11 @@ void clear_history() {
 
 int GJKSession::collision_test() {
 
-	// find farthest point (vertex) in the direction D for box a, and in -D for box b (to maximize volume/area for quicker convergence)
 	clear_history();
 
 	static vec4 D(0.0, 1.0, 0.0, 0.0);
 
+	// find farthest point (vertex) in the direction D for box a, and in -D for box b (to maximize volume/area for quicker convergence)
 	vec4 S = support(D);
 	D = -S;
 
@@ -690,14 +692,15 @@ int GJKSession::collision_test() {
 		D.assign(V::w, 0);
 		D.normalize();
 		vec4 A = support(D);
+		simplex_add(A);
+
+		add_current_simplex_to_history();
 		if (dot3(A, D) < 0) {
 			// we can conclude that there can be no intersection between the two shapes (boxes)
 			rval = NO_COLLISION;
 			break;
 		}
-		simplex_add(A);
 
-		add_current_simplex_to_history();
 		if (DoSimplex(&D)) {
 			rval = COLLISION;
 			break;
