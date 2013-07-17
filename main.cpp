@@ -13,7 +13,6 @@
 #include <GL/glx.h>
 
 #include "gjkvis.h"
-#include "lin_alg.h"
 #include "physics/OBB.h"
 
 #include "window_crap.h"

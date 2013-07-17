@@ -2,6 +2,8 @@
 CAR_DIR=/home/elias/programming/c_c++/car_win32/car
 LIBS="-lGLEW -lGL -lX11"
 
+set -e 
+
 rebuild_depobjs=0
 set -- $(getopt r "$@")
 while [ $# -gt 0 ]
@@ -15,13 +17,14 @@ do
 	shift
 done
 
-if [ $rebuild_depobjs -gt 0 ]; then
-	mkdir -p objs
-	g++ -c -Wall -DLINALG_STANDALONE -I$CAR_DIR/include $CAR_DIR/src/lin_alg.cpp -o objs/lin_alg.o
-	g++ -c -Wall -DLINALG_STANDALONE -I$CAR_DIR/include OBB.cpp -o objs/OBB.o
+CC="clang++ -O2"
+if [ $rebuild_depobjs -eq 1 ]; then
+	$CC -c -Wall $LIBS -DLINALG_STANDALONE -I$CAR_DIR/include $CAR_DIR/src/lin_alg.cpp -o objs/lin_alg.o
 fi
 
-DEPOBJS="objs/lin_alg.o"
+BIN="gjk_vis convex_hull_test"
+DEPOBJS=objs/lin_alg.o
 
-rm gjk_vis 
-g++ -Wall -std=c++11 $LIBS -DLINALG_STANDALONE $DEPOBJS OBB.cpp -I$CAR_DIR/include main.cpp -o gjk_vis
+rm $BIN ||
+$CC -Wall -std=c++11 $LIBS -DLINALG_STANDALONE $DEPOBJS OBB.cpp -I$CAR_DIR/include main.cpp -o gjk_vis
+$CC -Wall -fopenmp -DLINALG_STANDALONE $DEPOBJS -I$CAR_DIR/include convex_hull.cpp -o convex_hull_test

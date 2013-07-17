@@ -217,16 +217,20 @@ vec4 GJKSession::support(const vec4 &D) {
 
 	// the whole float_arr bullshit is because we're calculating 4 dot products at once (SSE), in two parts.
 
-	float_arr_vec4 dpVA1(VAm_T(0)*D);	// now we have the first four dot products in the vector
-	float_arr_vec4 dpVA2(VAm_T(1)*D);	// and the last four in another
+	//float_arr_vec4 dpVA1(VAm_T(0)*D);	// now we have the first four dot products in the vector
+	//float_arr_vec4 dpVA2(VAm_T(1)*D);	// and the last four in another
+	float_arr_vec4 dpVA1(dot3x4_notranspose(VAm_T(0), D));
+	float_arr_vec4 dpVA2(dot3x4_notranspose(VAm_T(1), D));
 
 	// find point with maximum dot product
 	vec4 max_A = VAm.column(find_max_dp_index(dpVA1, dpVA2));
 
 	const vec4 neg_D = -D;
 
-	float_arr_vec4 dpVB1(VBm_T(0)*neg_D);	
-	float_arr_vec4 dpVB2(VBm_T(1)*neg_D);	
+//	float_arr_vec4 dpVB1(VBm_T(0)*neg_D);	
+//	float_arr_vec4 dpVB2(VBm_T(1)*neg_D);	
+	float_arr_vec4 dpVB1(dot3x4_notranspose(VBm_T(0), neg_D));
+	float_arr_vec4 dpVB2(dot3x4_notranspose(VBm_T(1), neg_D));
 
 	vec4 max_B = VBm.column(find_max_dp_index(dpVB1, dpVB2));
 
@@ -515,11 +519,11 @@ struct rgb {
 };
 
 static const struct rgb colors[5] = {
-	{ 1.0, 0.0, 0.0 },
-	{ 0.0, 1.0, 0.0 },
-	{ 0.0, 0.0, 1.0 },
-	{ 1.0, 1.0, 0.0 },
-	{ 1.0, 1.0, 1.0 }
+	{{ 1.0, 0.0, 0.0 }},
+	{{ 0.0, 1.0, 0.0 }},
+	{{ 0.0, 0.0, 1.0 }},
+	{{ 1.0, 1.0, 0.0 }},
+	{{ 1.0, 1.0, 1.0 }}
 };
 
 static float_arr_vec4 *SIMPLEX_P_PTR = NULL;
